@@ -1,0 +1,52 @@
+{
+    "title": "Indeed.com jobs scraper",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "state":{
+            "title":"State for search - abbreviation",
+            "type" :"string",
+            "description":"Short abreviation of state for job search",
+            "editor":"textfield"
+        },
+        "position":{
+            "title":"Position for search",
+            "type" :"string",
+            "description":"Any combination of positions or keywords for search",
+            "editor":"textfield"
+        },
+        "location":{
+            "title":"Location for search",
+            "type" :"string",
+            "description":"Any combination of city, zip code or locality for search",
+            "editor":"textfield"
+        },
+        "maxItems": {
+            "title": "Max items",
+            "type": "integer",
+            "minimum": 1,
+            "description": "Limit of detail/product pages to be scraped"
+        },
+        "startURLs": {
+            "title": "Start URLs",
+            "type": "array",
+            "editor": "requestListSources",
+            "description": "List of URLs that will be scraped or crawled. Can be main website URL, category/search URLs or detail/product URLs.",
+            "sectionCaption": "Advanced options"
+        },
+        "extendOutputFunction": {
+            "title": "Extend output function",
+            "type": "string",
+            "editor": "javascript",
+            "description": "A function which result will get merged with the default result",
+            "prefill": "($) => {\n    const result = {};\n    // Uncomment to add a title to the output\n    // result.title = $('title').text().trim();\n\n    return result;\n}"
+        },
+        "proxyConfiguration": {
+            "title": "Proxy configuration",
+            "type": "object",
+            "editor": "proxy",
+            "description": "The best option is usually Automatic proxy. But you can also use your own proxies or no proxy",
+            "prefill": { "useApifyProxy": true }
+        }
+    }
+}
