@@ -67,7 +67,7 @@ Apify.main(async () => {
                 case 'LIST':
                     const details = $('a[data-tn-element="jobTitle"]').get().map(function(el){return {url:makeUrlFull(el.attribs.href,urlParsed),userData:{'label':'DETAIL'}}});
                     for (const req of details) {
-                        if (!(maxItems && counter>maxItems)) await requestQueue.addRequest(req);
+                        if (!(maxItems && counter>=maxItems)) await requestQueue.addRequest(req);
                         counter += 1;
                     }
 
