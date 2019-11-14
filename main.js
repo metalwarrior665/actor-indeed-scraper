@@ -54,7 +54,7 @@ Apify.main(async () => {
     console.log('starting crawler')
     const crawler = new Apify.CheerioCrawler({
         requestQueue,
-        maxConcurrency : maxConcurrency || 5,
+        //maxConcurrency : maxConcurrency,
         maxRequestRetries : 10,
         ...proxyConf,
         handlePageFunction: async ({ $, html, request }) => {

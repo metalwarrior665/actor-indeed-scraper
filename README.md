@@ -58,11 +58,10 @@ You can return fields to achive 3 different things:
     }
 }
 ```
-This example will add a new field `story line`, change the `original title` field and remove `url` field
+This example will add a new field `jobType` and remove `url` field
 ```
 {
   "positionName": "SharePoint Developer",
-  "url": undefined,
   "id": "6f524b31f5df1cad",
   "location": "Praha",
   "jobType":"Plný úvazek, Trvalý",
