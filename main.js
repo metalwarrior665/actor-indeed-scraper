@@ -23,9 +23,6 @@ Apify.main(async () => {
         } catch (e) {
             throw new Error(`extendOutputFunction is not a valid JavaScript! Error: ${e}`)
         }
-        if (typeof extendOutputFunction!== "function") {
-            throw new Error(`extendOutputFunction is not a function! Please fix it or use just default output!`)
-        }
     }
 
     console.log(`Running site crawl state ${state}, position ${position}, location ${location}`);
