@@ -23,6 +23,9 @@ Apify.main(async () => {
         } catch (e) {
             throw new Error(`extendOutputFunction is not a valid JavaScript! Error: ${e}`)
         }
+        if (typeof extendOutputFunctionValid!== "function") {
+            throw new Error(`extendOutputFunction is not a function! Please fix it or use just default output!`)
+        }
     }
 
     console.log(`Running site crawl state ${state}, position ${position}, location ${location}`);
@@ -85,8 +88,8 @@ Apify.main(async () => {
 
                     if (extendOutputFunction){
                         try {
-                            const userResult = await extendOutputFunction($);
-                            result = Object.asign(result,userResult);
+                            const userResult = await extendOutputFunctionValid($);
+                            result = Object.assign(result,userResult);
                         } catch (e){
                             console.log('Error in the extendedOutputFunction run', e)
                         }
