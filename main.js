@@ -107,7 +107,7 @@ Apify.main(async () => {
                     break;
                  case 'DETAIL':
                     let result = {
-                        positionName : $('div[class="jobsearch-DesktopStickyContainer"]>h3').text().trim(),
+                        positionName : $('h3[class*="jobsearch-JobInfoHeader-title"]').text().trim(),
                         url : request.url,
                         id : getIdFromUrl($('meta[id="indeed-share-url"]').attr('content')),
                         location : $('span[class="jobsearch-JobMetadataHeader-iconLabel"]').eq(0).text().trim(),
