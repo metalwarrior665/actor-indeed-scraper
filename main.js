@@ -13,7 +13,7 @@ function getIdFromUrl(url){
 
 Apify.main(async () => {
     const input = await Apify.getInput() || {};
-    const { state, maxConcurrency, position, location  } = input;
+    const { country, maxConcurrency, position, location  } = input;
     const {startUrls, maxItems, extendOutputFunction, proxyConfiguration} = input;
 
     let extendOutputFunctionValid;
@@ -28,9 +28,37 @@ Apify.main(async () => {
         }
     }
 
-    console.log(`Running site crawl state ${state}, position ${position}, location ${location}`);
+    console.log(`Running site crawl country ${country}, position ${position}, location ${location}`);
+
+    let countryUrl = '';
+    switch (String(country).toLowerCase()){
+        case 'us':
+            countryUrl = 'https://www.indeed.com';
+            break;
+        case 'uk':
+        case 'gb':
+            countryUrl = 'https://www.indeed.co.uk';
+            break;   
+        case 'fr':
+            countryUrl = 'https://www.indeed.fr';
+            break; 
+        case 'es':
+            countryUrl = 'https://www.indeed.es';
+            break; 
+        case 'in':
+            countryUrl = 'https://www.indeed.co.in';
+            break; 
+        case 'br':
+            countryUrl = 'https://www.indeed.com.br';
+            break; 
+        case 'ca':
+            countryUrl = 'https://www.indeed.ca';
+            break;
+        default:
+            countryUrl = 'https://'+(country?country:'www')+'.indeed.com';
+    }
     
-    const startUrl = 'https://' + (state?state+'.':'www.') + 'indeed.com/jobs?'+(position?'q='+encodeURIComponent(position)+'&':'')+(location?'l='+encodeURIComponent(location):'');
+    const startUrl = countryUrl + '/jobs?'+(position?'q='+encodeURIComponent(position)+'&':'')+(location?'l='+encodeURIComponent(location):'');
 
     const requestQueue = await Apify.openRequestQueue();
     await requestQueue.addRequest({url:startUrl,userData:{'label':'START'}});

@@ -9,10 +9,10 @@
             "description":"Any combination of positions or keywords for search",
             "editor":"textfield"
         },
-        "state":{
-            "title":"State for search - abbreviation",
+        "country":{
+            "title":"Country for search - abbreviation",
             "type" :"string",
-            "description":"Short abreviation of state for job search",
+            "description":"Short abreviation of country for job search",
             "editor":"textfield"
         },
         "location":{
