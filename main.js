@@ -54,6 +54,9 @@ Apify.main(async () => {
         case 'ca':
             countryUrl = 'https://www.indeed.ca';
             break;
+        case 'nl':
+             countryUrl = 'https://www.indeed.nl';
+             break;
         default:
             countryUrl = 'https://'+(country?country:'www')+'.indeed.com';
     }
