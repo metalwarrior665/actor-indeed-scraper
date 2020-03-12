@@ -1,23 +1,23 @@
 const Apify = require('apify');
 const urlParse = require('url-parse')
 
-function makeUrlFull(href,urlParsed){
+function makeUrlFull (href, urlParsed) {
     if (href.substr(0,1)==='/') return urlParsed.origin + href
     return href;
 }
 
-function getIdFromUrl(url){
+function getIdFromUrl (url) {
     console.log(url);
     return (url.match(new RegExp('(?<=jk=).*?$'))?url.match(new RegExp('(?<=jk=).*?$'))[0]:'')
 }
 
 Apify.main(async () => {
     const input = await Apify.getInput() || {};
-    const { country, maxConcurrency, position, location  } = input;
-    const {startUrls, maxItems, extendOutputFunction, proxyConfiguration} = input;
+    const { country, maxConcurrency, position, location } = input;
+    const { startUrls, maxItems, extendOutputFunction, proxyConfiguration } = input;
 
     let extendOutputFunctionValid;
-    if (extendOutputFunction){
+    if (extendOutputFunction) {
         try {
             extendOutputFunctionValid= eval(extendOutputFunction);
         } catch (e) {
@@ -31,7 +31,7 @@ Apify.main(async () => {
     console.log(`Running site crawl country ${country}, position ${position}, location ${location}`);
 
     let countryUrl = '';
-    switch (String(country).toLowerCase()){
+    switch (country.toLowerCase()){
         case 'us':
             countryUrl = 'https://www.indeed.com';
             break;
@@ -59,6 +59,7 @@ Apify.main(async () => {
              break;
         case 'za':
             countryUrl = 'https://www.indeed.co.za';
+            break;
         default:
             countryUrl = 'https://'+(country?country:'www')+'.indeed.com';
     }
