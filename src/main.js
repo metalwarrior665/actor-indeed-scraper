@@ -38,29 +38,31 @@ Apify.main(async () => {
         case 'uk':
         case 'gb':
             countryUrl = 'https://www.indeed.co.uk';
-            break;   
+            break;
         case 'fr':
             countryUrl = 'https://www.indeed.fr';
-            break; 
+            break;
         case 'es':
             countryUrl = 'https://www.indeed.es';
-            break; 
+            break;
         case 'in':
             countryUrl = 'https://www.indeed.co.in';
-            break; 
+            break;
         case 'br':
             countryUrl = 'https://www.indeed.com.br';
-            break; 
+            break;
         case 'ca':
             countryUrl = 'https://www.indeed.ca';
             break;
         case 'nl':
-             countryUrl = 'https://www.indeed.nl';
+            countryUrl = 'https://www.indeed.nl';
              break;
+        case 'za':
+            countryUrl = 'https://www.indeed.co.za';
         default:
             countryUrl = 'https://'+(country?country:'www')+'.indeed.com';
     }
-    
+
     const startUrl = countryUrl + '/jobs?'+(position?'q='+encodeURIComponent(position)+'&':'')+(location?'l='+encodeURIComponent(location):'');
 
     const requestQueue = await Apify.openRequestQueue();
@@ -125,14 +127,14 @@ Apify.main(async () => {
                             console.log('Error in the extendedOutputFunction run', e)
                         }
                     }
-                    
+
                    await Apify.pushData(result)
 
                 break;
-            } 
+            }
         },
     });
     await crawler.run();
-    
+
     console.log('Done.');
 });
