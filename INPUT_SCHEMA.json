@@ -6,7 +6,7 @@
         "position":{
             "title":"Position for search",
             "type" :"string",
-            "description":"Any combination of positions or keywords for search",
+            "description":"Any combination of positions or keywords for search. If Start URLs are used, search position is disabled.",
             "editor":"textfield"
         },
         "country":{
@@ -29,11 +29,11 @@
             "minimum": 1,
             "description": "Limit of detail/product pages to be scraped"
         },
-        "startURLs": {
+        "startUrls": {
             "title": "Start URLs",
             "type": "array",
             "editor": "requestListSources",
-            "description": "List of URLs that will be scraped or crawled. Can be main website URL, category/search URLs or detail/product URLs.",
+            "description": "List of URLs that will be scraped or crawled. Can be main website URL, category/search URLs or detail/product URLs. Using this disables search.",
             "sectionCaption": "Advanced options"
         },
         "extendOutputFunction": {

@@ -64,18 +64,19 @@ Apify.main(async () => {
             countryUrl = 'https://'+(country?country:'www')+'.indeed.com';
     }
 
-    const startUrl = countryUrl + '/jobs?'+(position?'q='+encodeURIComponent(position)+'&':'')+(location?'l='+encodeURIComponent(location):'');
-
-    const requestQueue = await Apify.openRequestQueue();
-    await requestQueue.addRequest({url:startUrl,userData:{'label':'START'}});
-
-    if (startUrls){
-        for (let sU of startUrls){
-            if (!sU.url) throw 'StartURL in bad format, needs to be object with url field'
-            if (!sU.userData) sU.userData = {};
-            if (!sU.userData.label) sU.userData.label = 'START';
-            await requestQueue.addRequest(sU);
+    // Using startUrls disables search
+    if (Array.isArray(startUrls) && startUrls.length > 0) {
+        for (let req of startUrls) {
+            if (!req.url) throw 'StartURL in bad format, needs to be object with url field'
+            if (!req.userData) req.userData = {};
+            if (!req.userData.label) req.userData.label = 'START';
+            await requestQueue.addRequest(req);
         }
+    } else {
+        const startUrl = countryUrl + '/jobs?'+(position?'q='+encodeURIComponent(position)+'&':'')+(location?'l='+encodeURIComponent(location):'');
+
+        const requestQueue = await Apify.openRequestQueue();
+        await requestQueue.addRequest({url:startUrl,userData:{'label':'START'}});
     }
 
     var counter = 0;
