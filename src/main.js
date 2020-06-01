@@ -64,6 +64,8 @@ Apify.main(async () => {
             countryUrl = 'https://'+(country?country:'www')+'.indeed.com';
     }
 
+    const requestQueue = await Apify.openRequestQueue();
+
     // Using startUrls disables search
     if (Array.isArray(startUrls) && startUrls.length > 0) {
         for (let req of startUrls) {
@@ -75,7 +77,6 @@ Apify.main(async () => {
     } else {
         const startUrl = countryUrl + '/jobs?'+(position?'q='+encodeURIComponent(position)+'&':'')+(location?'l='+encodeURIComponent(location):'');
 
-        const requestQueue = await Apify.openRequestQueue();
         await requestQueue.addRequest({url:startUrl,userData:{'label':'START'}});
     }
 
