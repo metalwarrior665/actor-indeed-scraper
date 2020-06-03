@@ -30,6 +30,7 @@ Apify.main(async () => {
 
     console.log(`Running site crawl country ${country}, position ${position}, location ${location}`);
 
+
     let countryUrl = '';
     switch (country.toLowerCase()){
         case 'us':
