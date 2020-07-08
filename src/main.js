@@ -30,41 +30,21 @@ Apify.main(async () => {
 
     console.log(`Running site crawl country ${country}, position ${position}, location ${location}`);
 
-
-    let countryUrl = '';
-    switch (country.toLowerCase()){
-        case 'us':
-            countryUrl = 'https://www.indeed.com';
-            break;
-        case 'uk':
-        case 'gb':
-            countryUrl = 'https://www.indeed.co.uk';
-            break;
-        case 'fr':
-            countryUrl = 'https://www.indeed.fr';
-            break;
-        case 'es':
-            countryUrl = 'https://www.indeed.es';
-            break;
-        case 'in':
-            countryUrl = 'https://www.indeed.co.in';
-            break;
-        case 'br':
-            countryUrl = 'https://www.indeed.com.br';
-            break;
-        case 'ca':
-            countryUrl = 'https://www.indeed.ca';
-            break;
-        case 'nl':
-            countryUrl = 'https://www.indeed.nl';
-             break;
-        case 'za':
-            countryUrl = 'https://www.indeed.co.za';
-            break;
-        default:
-            countryUrl = 'https://'+(country?country:'www')+'.indeed.com';
+    let countryDict = {
+        'us': 'https://www.indeed.com',
+        'uk': 'https://www.indeed.co.uk',
+        'gb': 'https://www.indeed.co.uk',
+        'fr': 'https://www.indeed.fr',
+        'es': 'https://www.indeed.es',
+        'in': 'https://www.indeed.co.in',
+        'br': 'https://www.indeed.com.br',
+        'ca': 'https://www.indeed.ca',
+        'nl': 'https://www.indeed.nl',
+        'za': 'https://www.indeed.co.za'
     }
-
+    
+    let countryUrl = countryDict[country] || 'https://'+(country?country:'www')+'.indeed.com';
+    
     const requestQueue = await Apify.openRequestQueue();
 
     // Using startUrls disables search
