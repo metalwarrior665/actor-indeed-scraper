@@ -26,6 +26,7 @@ Output is stored in a dataset. Each item is an information about a movies/TV sho
 ```
 {
   "positionName": "SharePoint Developer",
+  "company": "Apify",
   "url": "https://cz.indeed.com/rc/clk?jk=6f524b31f5df1cad&fccid=3c0bf511b4a29309&vjs=3",
   "id": "6f524b31f5df1cad",
   "location": "Praha",
