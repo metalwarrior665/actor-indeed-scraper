@@ -97,6 +97,7 @@ Apify.main(async () => {
                  case 'DETAIL':
                     let result = {
                         positionName : $('h3[class*="jobsearch-JobInfoHeader-title"]').text().trim(),
+                        company: $('.jobsearch-InlineCompanyRating div').eq(0).text(), 
                         url : request.url,
                         id : getIdFromUrl($('meta[id="indeed-share-url"]').attr('content')),
                         location : $('span[class="jobsearch-JobMetadataHeader-iconLabel"]').eq(0).text().trim(),
