@@ -104,8 +104,6 @@ Apify.main(async () => {
                         description : $('div[id="jobDescriptionText"]').text()
                     };
 
-                    console.log(result.company);
-
                     if (extendOutputFunction){
                         try {
                             const userResult = await extendOutputFunctionValid($);
