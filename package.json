@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "dependencies": {
         "apify": "^0.20.2",
-        "url-parse":"latest"
+        "url-parse": "latest"
     },
     "scripts": {
         "start": "node src/main.js"

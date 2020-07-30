@@ -42,9 +42,9 @@ Apify.main(async () => {
         'nl': 'https://www.indeed.nl',
         'za': 'https://www.indeed.co.za'
     }
-    
-    let countryUrl = countryDict[country] || 'https://'+(country?country:'www')+'.indeed.com';
-    
+
+    let countryUrl = countryDict[country.toLowerCase()] || 'https://'+(country?country:'www')+'.indeed.com';
+
     const requestQueue = await Apify.openRequestQueue();
 
     // Using startUrls disables search
@@ -97,12 +97,14 @@ Apify.main(async () => {
                  case 'DETAIL':
                     let result = {
                         positionName : $('h3[class*="jobsearch-JobInfoHeader-title"]').text().trim(),
-                        company: $('.jobsearch-InlineCompanyRating div').eq(0).text(), 
+                        company: $('.jobsearch-InlineCompanyRating div').eq(0).text(),
                         url : request.url,
                         id : getIdFromUrl($('meta[id="indeed-share-url"]').attr('content')),
                         location : $('span[class="jobsearch-JobMetadataHeader-iconLabel"]').eq(0).text().trim(),
                         description : $('div[id="jobDescriptionText"]').text()
                     };
+
+                    console.log(result.company);
 
                     if (extendOutputFunction){
                         try {
