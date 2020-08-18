@@ -1,14 +1,14 @@
 const Apify = require('apify');
-const urlParse = require('url-parse')
+const urlParse = require('url-parse');
 
-function makeUrlFull (href, urlParsed) {
-    if (href.substr(0,1)==='/') return urlParsed.origin + href
+function makeUrlFull(href, urlParsed) {
+    if (href.substr(0, 1) === '/') return urlParsed.origin + href;
     return href;
 }
 
-function getIdFromUrl (url) {
+function getIdFromUrl(url) {
     console.log(url);
-    return (url.match(new RegExp('(?<=jk=).*?$'))?url.match(new RegExp('(?<=jk=).*?$'))[0]:'')
+    return (url.match(new RegExp('(?<=jk=).*?$')) ? url.match(new RegExp('(?<=jk=).*?$'))[0] : '');
 }
 
 Apify.main(async () => {
@@ -19,103 +19,103 @@ Apify.main(async () => {
     let extendOutputFunctionValid;
     if (extendOutputFunction) {
         try {
-            extendOutputFunctionValid= eval(extendOutputFunction);
+            extendOutputFunctionValid = eval(extendOutputFunction);
         } catch (e) {
-            throw new Error(`extendOutputFunction is not a valid JavaScript! Error: ${e}`)
+            throw new Error(`extendOutputFunction is not a valid JavaScript! Error: ${e}`);
         }
-        if (typeof extendOutputFunctionValid!== "function") {
-            throw new Error(`extendOutputFunction is not a function! Please fix it or use just default output!`)
+        if (typeof extendOutputFunctionValid !== 'function') {
+            throw new Error('extendOutputFunction is not a function! Please fix it or use just default output!');
         }
     }
 
     console.log(`Running site crawl country ${country}, position ${position}, location ${location}`);
 
-    let countryDict = {
-        'us': 'https://www.indeed.com',
-        'uk': 'https://www.indeed.co.uk',
-        'gb': 'https://www.indeed.co.uk',
-        'fr': 'https://www.indeed.fr',
-        'es': 'https://www.indeed.es',
-        'in': 'https://www.indeed.co.in',
-        'br': 'https://www.indeed.com.br',
-        'ca': 'https://www.indeed.ca',
-        'nl': 'https://www.indeed.nl',
-        'za': 'https://www.indeed.co.za'
-    }
+    const countryDict = {
+        us: 'https://www.indeed.com',
+        uk: 'https://www.indeed.co.uk',
+        gb: 'https://www.indeed.co.uk',
+        fr: 'https://www.indeed.fr',
+        es: 'https://www.indeed.es',
+        in: 'https://www.indeed.co.in',
+        br: 'https://www.indeed.com.br',
+        ca: 'https://www.indeed.ca',
+        nl: 'https://www.indeed.nl',
+        za: 'https://www.indeed.co.za',
+    };
 
-    let countryUrl = countryDict[country.toLowerCase()] || 'https://'+(country?country:'www')+'.indeed.com';
+    const countryUrl = countryDict[country.toLowerCase()] || `https://${country || 'www'}.indeed.com`;
 
     const requestQueue = await Apify.openRequestQueue();
 
     // Using startUrls disables search
     if (Array.isArray(startUrls) && startUrls.length > 0) {
-        for (let req of startUrls) {
-            if (!req.url) throw 'StartURL in bad format, needs to be object with url field'
+        for (const req of startUrls) {
+            if (!req.url) throw 'StartURL in bad format, needs to be object with url field';
             if (!req.userData) req.userData = {};
             if (!req.userData.label) req.userData.label = 'START';
             await requestQueue.addRequest(req);
         }
     } else {
-        const startUrl = countryUrl + '/jobs?'+(position?'q='+encodeURIComponent(position)+'&':'')+(location?'l='+encodeURIComponent(location):'');
+        const startUrl = `${countryUrl}/jobs?${position ? `q=${encodeURIComponent(position)}&` : ''}${location ? `l=${encodeURIComponent(location)}` : ''}`;
 
-        await requestQueue.addRequest({url:startUrl,userData:{'label':'START'}});
+        await requestQueue.addRequest({ url: startUrl, userData: { label: 'START' } });
     }
 
-    var counter = 0;
+    let counter = 0;
 
     let proxyConf = {
-        useApifyProxy : true
+        useApifyProxy: true,
     };
     if (proxyConfiguration) proxyConf = proxyConfiguration;
 
-    console.log('starting crawler')
+    console.log('starting crawler');
     const crawler = new Apify.CheerioCrawler({
         requestQueue,
-        //maxConcurrency : maxConcurrency,
-        maxRequestRetries : 10,
+        // maxConcurrency : maxConcurrency,
+        maxRequestRetries: 10,
         ...proxyConf,
         handlePageFunction: async ({ $, html, request }) => {
-            console.log('url :',request.url);
-            console.log('label :',request.userData.label);
+            console.log('url :', request.url);
+            console.log('label :', request.userData.label);
             const urlParsed = urlParse(request.url);
 
-            switch (request.userData.label){
+            switch (request.userData.label) {
                 case 'START':
                 case 'LIST':
-                    const details = $('a[data-tn-element="jobTitle"]').get().map(function(el){return {url:makeUrlFull(el.attribs.href,urlParsed),userData:{'label':'DETAIL'}}});
+                    const details = $('a[data-tn-element="jobTitle"]').get().map((el) => { return { url: makeUrlFull(el.attribs.href, urlParsed), userData: { label: 'DETAIL' } }; });
                     for (const req of details) {
-                        if (!(maxItems && counter>=maxItems)) await requestQueue.addRequest(req);
+                        if (!(maxItems && counter >= maxItems)) await requestQueue.addRequest(req);
                         counter += 1;
                     }
 
-                    const lists = $('div[class="pagination"] a').get().map(el => { return {url:makeUrlFull(el.attribs.href,urlParsed),userData:{'label':'LIST'}}});
+                    const lists = $('div[class="pagination"] a').get().map((el) => { return { url: makeUrlFull(el.attribs.href, urlParsed), userData: { label: 'LIST' } }; });
                     for (const req of lists) {
-                        if (!(maxItems && counter>maxItems)) await requestQueue.addRequest(req)
+                        if (!(maxItems && counter > maxItems)) await requestQueue.addRequest(req);
                     }
 
                     break;
-                 case 'DETAIL':
+                case 'DETAIL':
                     let result = {
-                        positionName : $('h3[class*="jobsearch-JobInfoHeader-title"]').text().trim(),
+                        positionName: $('.jobsearch-JobInfoHeader-title').text().trim(),
                         company: $('.jobsearch-InlineCompanyRating div').eq(0).text(),
-                        url : request.url,
-                        id : getIdFromUrl($('meta[id="indeed-share-url"]').attr('content')),
-                        location : $('span[class="jobsearch-JobMetadataHeader-iconLabel"]').eq(0).text().trim(),
-                        description : $('div[id="jobDescriptionText"]').text()
+                        location: $('.jobsearch-InlineCompanyRating div').last().text().trim(),
+                        url: request.url,
+                        id: getIdFromUrl($('meta[id="indeed-share-url"]').attr('content')),
+                        description: $('div[id="jobDescriptionText"]').text(),
                     };
 
-                    if (extendOutputFunction){
+                    if (extendOutputFunction) {
                         try {
                             const userResult = await extendOutputFunctionValid($);
-                            result = Object.assign(result,userResult);
-                        } catch (e){
-                            console.log('Error in the extendedOutputFunction run', e)
+                            result = Object.assign(result, userResult);
+                        } catch (e) {
+                            console.log('Error in the extendedOutputFunction run', e);
                         }
                     }
 
-                   await Apify.pushData(result)
+                    await Apify.pushData(result);
 
-                break;
+                    break;
             }
         },
     });
