@@ -43,12 +43,12 @@
             "description": "A function which result will get merged with the default result",
             "prefill": "($) => {\n    const result = {};\n    // Uncomment to add a title to the output\n    // result.title = $('title').text().trim();\n\n    return result;\n}"
         },
-        "proxyConfiguration": {
+        "proxy":{
             "title": "Proxy configuration",
             "type": "object",
-            "editor": "proxy",
-            "description": "The best option is usually Automatic proxy. But you can also use your own proxies or no proxy",
-            "prefill": { "useApifyProxy": true }
+            "description": "Select proxies to be used by your crawler.",
+            "prefill": { "useApifyProxy": true },
+            "editor": "proxy"
         }
     }
 }
