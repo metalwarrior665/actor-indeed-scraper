@@ -14,7 +14,7 @@ function getIdFromUrl(url) {
 Apify.main(async () => {
     const input = await Apify.getInput() || {};
     const { country, maxConcurrency, position, location } = input;
-    const { startUrls, maxItems, extendOutputFunction, proxy  } = input;
+    const { startUrls, maxItems, extendOutputFunction, proxyConfiguration  } = input;
 
     let extendOutputFunctionValid;
     if (extendOutputFunction) {
@@ -62,7 +62,7 @@ Apify.main(async () => {
     }
 
     let counter = 0;
-    const proxyConfiguration = await Apify.createProxyConfiguration({ groups: proxy.apifyProxyGroups });
+    const sdkProxyConfiguration = await Apify.createProxyConfiguration({ groups: proxyConfiguration.apifyProxyGroups });
 
     console.log('starting crawler');
     const crawler = new Apify.CheerioCrawler({
@@ -74,8 +74,9 @@ Apify.main(async () => {
                 maxUsageCount: 50,
             },
         },
+        maxConcurrency,
         maxRequestRetries: 10,
-        proxyConfiguration,
+        proxyConfiguration: sdkProxyConfiguration,
         handlePageFunction: async ({ $, request, session, response }) => {
             console.log('url :', request.url);
             console.log('label :', request.userData.label);

@@ -29,6 +29,12 @@
             "minimum": 1,
             "description": "Limit of detail/product pages to be scraped"
         },
+      "maxConcurrency": {
+        "title": "Max concurrency",
+        "type": "integer",
+        "minimum": 5,
+        "description": "Be nice to the website, don't go over 10"
+      },
         "startUrls": {
             "title": "Start URLs",
             "type": "array",
@@ -43,7 +49,7 @@
             "description": "A function which result will get merged with the default result",
             "prefill": "($) => {\n    const result = {};\n    // Uncomment to add a title to the output\n    // result.title = $('title').text().trim();\n\n    return result;\n}"
         },
-        "proxy":{
+        "proxyConfiguration":{
             "title": "Proxy configuration",
             "type": "object",
             "description": "Select proxies to be used by your crawler.",
