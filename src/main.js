@@ -14,7 +14,7 @@ function getIdFromUrl(url) {
 Apify.main(async () => {
     const input = await Apify.getInput() || {};
     const { country, maxConcurrency, position, location } = input;
-    const { startUrls, maxItems, extendOutputFunction, proxyConfiguration } = input;
+    const { startUrls, maxItems, extendOutputFunction, proxyConfiguration  } = input;
 
     let extendOutputFunctionValid;
     if (extendOutputFunction) {
@@ -62,22 +62,31 @@ Apify.main(async () => {
     }
 
     let counter = 0;
-
-    let proxyConf = {
-        useApifyProxy: true,
-    };
-    if (proxyConfiguration) proxyConf = proxyConfiguration;
+    const sdkProxyConfiguration = await Apify.createProxyConfiguration({ groups: proxyConfiguration.apifyProxyGroups });
 
     console.log('starting crawler');
     const crawler = new Apify.CheerioCrawler({
         requestQueue,
-        // maxConcurrency : maxConcurrency,
+        useSessionPool: true,
+        sessionPoolOptions: {
+            maxPoolSize: 50,
+            sessionOptions: {
+                maxUsageCount: 50,
+            },
+        },
+        maxConcurrency,
         maxRequestRetries: 10,
-        ...proxyConf,
-        handlePageFunction: async ({ $, html, request }) => {
+        proxyConfiguration: sdkProxyConfiguration,
+        handlePageFunction: async ({ $, request, session, response }) => {
             console.log('url :', request.url);
             console.log('label :', request.userData.label);
             const urlParsed = urlParse(request.url);
+
+            if (![200, 404].includes(response.statusCode)) {
+                session.retire();
+                request.retryCount--;
+                throw new Error(`We got blocked by target on ${request.url}`);
+            }
 
             switch (request.userData.label) {
                 case 'START':
