@@ -13,8 +13,16 @@ function getIdFromUrl(url) {
 
 Apify.main(async () => {
     const input = await Apify.getInput() || {};
-    const { country, maxConcurrency, position, location } = input;
-    const { startUrls, maxItems, extendOutputFunction, proxyConfiguration  } = input;
+    const {
+        country,
+        maxConcurrency,
+        position,
+        location,
+        startUrls,
+        maxItems,
+        extendOutputFunction,
+        proxyConfiguration = { useApifyProxy: true },
+    } = input;
 
     let extendOutputFunctionValid;
     if (extendOutputFunction) {
@@ -62,7 +70,12 @@ Apify.main(async () => {
     }
 
     let counter = 0;
-    const sdkProxyConfiguration = await Apify.createProxyConfiguration({ groups: proxyConfiguration.apifyProxyGroups });
+    const sdkProxyConfiguration = await Apify.createProxyConfiguration(proxyConfiguration);
+
+    // You must use proxy on the platform
+    if (Apify.getEnv().isAtHome && !sdkProxyConfiguration) {
+        throw 'You must use Apify Proxy or custom proxies to run this scraper on the platform!';
+    }
 
     console.log('starting crawler');
     const crawler = new Apify.CheerioCrawler({
@@ -125,6 +138,8 @@ Apify.main(async () => {
                     await Apify.pushData(result);
 
                     break;
+                default:
+                    throw new Error(`Unknown label: ${request.userData.label}`);
             }
         },
     });
