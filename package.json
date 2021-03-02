@@ -2,7 +2,7 @@
     "name": "indeed_com_scraper",
     "version": "0.0.1",
     "dependencies": {
-        "apify": "^0.22.1",
+        "apify": "^1.0",
         "url-parse": "latest"
     },
     "scripts": {

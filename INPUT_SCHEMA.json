@@ -12,8 +12,9 @@
         "country": {
             "title": "Country for search - abbreviation",
             "type": "string",
-            "description": "Short abreviation of country for job search",
+            "description": "Country for job search",
             "editor": "select",
+            "default": "US",
             "enum": [
                 "AF",
                 "AL",

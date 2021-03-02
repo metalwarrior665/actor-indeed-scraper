@@ -11,7 +11,7 @@ Indeed Scraper is an [Apify actor](https://apify.com/actors) for extracting data
 
 | Field | Type | Description | Default value
 | ----- | ---- | ----------- | -------------|
-| country | string | Standard country two letter abbreveiation for setting the country where the positions will be searched for, if none then general indeed site is used. For example 'cz' or 'uk' | none |
+| country | string | Country where the positions will be searched for, if none then general indeed site is used. In JSON standard country two letter abbreveiation is used instead, for example 'cz' or 'uk' | none |
 | position | string | Any string pattern for position name or company | none |
 | location | string | Any string pattern for location city or area | none |
 | startUrls | array | List of [Request](https://sdk.apify.com/docs/api/request#docsNav) objects that will be deeply crawled. The URL can be top level like `https://cz.indeed.com/jobs?q=javascript+developer&l=prague`, any category/search URL or detail URL | `[{ "url": "https://cz.indeed.com/jobs?q=javascript+developer&l=prague" }]`|
