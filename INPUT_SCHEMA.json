@@ -7,13 +7,16 @@
             "title": "Position for search",
             "type": "string",
             "description": "Any combination of positions or keywords for search. If Start URLs are used, search position is disabled.",
-            "editor": "textfield"
+            "editor": "textfield",
+            "prefill": "web developer"
         },
         "country": {
             "title": "Country for search - abbreviation",
             "type": "string",
-            "description": "Short abreviation of country for job search",
+            "description": "Country for job search",
             "editor": "select",
+            "default": "US",
+            "prefill": "US",
             "enum": [
                 "AF",
                 "AL",
@@ -523,19 +526,22 @@
             "title": "Location for search",
             "type": "string",
             "description": "Any combination of city, zip code or locality for search",
-            "editor": "textfield"
+            "editor": "textfield",
+            "prefill": "San Francisco"
         },
         "maxItems": {
             "title": "Max items",
             "type": "integer",
             "minimum": 1,
-            "description": "Limit of detail/product pages to be scraped"
+            "description": "Limit of detail/product pages to be scraped",
+            "prefill": 100
         },
         "maxConcurrency": {
             "title": "Max concurrency",
             "type": "integer",
             "minimum": 5,
-            "description": "Be nice to the website, don't go over 10"
+            "description": "Be nice to the website, don't go over 10",
+            "prefill": 5
         },
         "startUrls": {
             "title": "Start URLs",

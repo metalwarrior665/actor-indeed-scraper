@@ -36,8 +36,6 @@ Apify.main(async () => {
         }
     }
 
-    console.log(`Running site crawl country ${country}, position ${position}, location ${location}`);
-
     const countryDict = {
         us: 'https://www.indeed.com',
         uk: 'https://www.indeed.co.uk',
@@ -61,13 +59,19 @@ Apify.main(async () => {
             if (!req.url) throw 'StartURL in bad format, needs to be object with url field';
             if (!req.userData) req.userData = {};
             if (!req.userData.label) req.userData.label = 'START';
+            if (req.url.includes("viewjob")) req.userData.label = 'DETAIL'
             await requestQueue.addRequest(req);
+            console.log(`This url will be scraped: ${req.url}`);
         }
+        
     } else {
+        console.log(`Running site crawl country ${country}, position ${position}, location ${location}`);
+
         const startUrl = `${countryUrl}/jobs?${position ? `q=${encodeURIComponent(position)}&` : ''}${location ? `l=${encodeURIComponent(location)}` : ''}`;
 
         await requestQueue.addRequest({ url: startUrl, userData: { label: 'START' } });
     }
+
 
     let counter = 0;
     const sdkProxyConfiguration = await Apify.createProxyConfiguration(proxyConfiguration);
@@ -119,8 +123,9 @@ Apify.main(async () => {
                 case 'DETAIL':
                     let result = {
                         positionName: $('.jobsearch-JobInfoHeader-title').text().trim(),
-                        company: $('.jobsearch-InlineCompanyRating div').eq(0).text(),
-                        location: $('.jobsearch-InlineCompanyRating div').last().text().trim(),
+                        company: $(".jobsearch-JobInfoHeader-subtitle > div > div").eq(0).text(),
+                        location: $(".jobsearch-JobInfoHeader-subtitle > div").eq(1).text(),
+                        reviews: $(".jobsearch-JobInfoHeader-subtitle > div > div").eq(1).text().replace(/\D/g,''),
                         url: request.url,
                         id: getIdFromUrl($('meta[id="indeed-share-url"]').attr('content')),
                         description: $('div[id="jobDescriptionText"]').text(),
@@ -141,7 +146,7 @@ Apify.main(async () => {
                 default:
                     throw new Error(`Unknown label: ${request.userData.label}`);
             }
-        },
+        }
     });
     await crawler.run();
 
