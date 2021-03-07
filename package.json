@@ -5,8 +5,16 @@
         "apify": "^1.0",
         "url-parse": "latest"
     },
-    "scripts": {
-        "start": "node src/main.js"
+    "devDependencies": {
+        "eslint": "^7.21.0",
+        "@apify/eslint-config-apify-actor": "latest"
     },
-    "author": "Apify"
+    "scripts": {
+        "start": "node src/main.js",
+        "lint": "eslint ."
+    },
+    "author": "Apify",
+    "engines": {
+        "node": ">=15"
+    }
 }
