@@ -63,7 +63,7 @@ Apify.main(async () => {
             await requestQueue.addRequest(req);
             console.log(`This url will be scraped: ${req.url}`);
         }
-        
+
     } else {
         console.log(`Running site crawl country ${country}, position ${position}, location ${location}`);
 
