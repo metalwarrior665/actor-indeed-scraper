@@ -11,6 +11,18 @@ function getIdFromUrl(url) {
     return (url.match(new RegExp('(?<=jk=).*?$')) ? url.match(new RegExp('(?<=jk=).*?$'))[0] : '');
 }
 
+const fromStartUrls = async function* (startUrls, name = 'STARTURLS') {
+    const rl = await Apify.openRequestList(name, startUrls);
+
+    /** @type {Apify.Request | null} */
+    let rq;
+
+    // eslint-disable-next-line no-cond-assign
+    while (rq = await rl.fetchNextRequest()) {
+        yield rq;
+    }
+};
+
 Apify.main(async () => {
     const input = await Apify.getInput() || {};
     const {
@@ -53,16 +65,17 @@ Apify.main(async () => {
 
     const requestQueue = await Apify.openRequestQueue();
 
+
     // Using startUrls disables search
     if (Array.isArray(startUrls) && startUrls.length > 0) {
-        for (const req of startUrls) {
-            if (!req.url) throw 'StartURL in bad format, needs to be object with url field';
-            if (!req.userData) req.userData = {};
-            if (!req.userData.label) req.userData.label = 'START';
-            if (req.url.includes("viewjob")) req.userData.label = 'DETAIL'
-            await requestQueue.addRequest(req);
-            console.log(`This url will be scraped: ${req.url}`);
-        }
+      for await (const req of fromStartUrls(startUrls)) { // this line changed
+          if (!req.url) throw 'StartURL in bad format, needs to be object with url field';
+          if (!req.userData) req.userData = {};
+          if (!req.userData.label) req.userData.label = 'START';
+          if (req.url.includes("viewjob")) req.userData.label = 'DETAIL'
+          await requestQueue.addRequest(req);
+          console.log(`This url will be scraped: ${req.url}`);
+            }
         
     } else {
         console.log(`Running site crawl country ${country}, position ${position}, location ${location}`);
