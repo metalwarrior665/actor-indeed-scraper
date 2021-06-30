@@ -42,7 +42,7 @@ Apify.main(async () => {
 
 
     if (maxItems > 990) {
-        log.warn(`The limit of items you set exceeds maximum allowed value. Max possible number of offers, that can be processed is 990.`)
+        log.warning(`The limit of items you set exceeds maximum allowed value. Max possible number of offers, that can be processed is 990.`)
     }
     // EXTENDED FUNCTION FROM INPUT
     let extendOutputFunctionValid;
