@@ -40,7 +40,6 @@ Apify.main(async () => {
         },
     } = input;
 
-
     if (maxItems > 990) {
         log.warning(`The limit of items you set exceeds maximum allowed value. Max possible number of offers, that can be processed is 990.`)
     }
@@ -88,7 +87,6 @@ Apify.main(async () => {
             await requestQueue.addRequest(req);
             log.info(`This url will be scraped: ${req.url}`);
         }
-
     }
     // IF NO START URL => CREATING FIRST "LIST"  PAGE ON OUR OWN
     else {
@@ -103,9 +101,7 @@ Apify.main(async () => {
             }
         });
     }
-
     const sdkProxyConfiguration = await Apify.createProxyConfiguration(proxyConfiguration);
-
     // You must use proxy on the platform
     if (Apify.getEnv().isAtHome && !sdkProxyConfiguration) {
         throw 'You must use Apify Proxy or custom proxies to run this scraper on the platform!';
@@ -156,8 +152,6 @@ Apify.main(async () => {
                         itemsCounter += 1;
                     }
 
-                   
-
                     if (!(maxItems && itemsCounter > maxItems) && itemsCounter < 990) {
                         currentPageNumber++;
                         const nextPage = $(`a[aria-label="${currentPageNumber}"]`).attr('href');
@@ -169,10 +163,8 @@ Apify.main(async () => {
                                 currentPageNumber
                             }
                         };
-    
                         await requestQueue.addRequest(nextPageUrl);
                     } 
-
                     break;
                 case 'DETAIL':
                     let result = {
@@ -193,9 +185,7 @@ Apify.main(async () => {
                             log.info('Error in the extendedOutputFunction run', e);
                         }
                     }
-
                     await Apify.pushData(result);
-
                     break;
                 default:
                     throw new Error(`Unknown label: ${request.userData.label}`);
@@ -203,6 +193,5 @@ Apify.main(async () => {
         }
     });
     await crawler.run();
-
     log.info('Done.');
 });
