@@ -40,7 +40,6 @@ Apify.main(async () => {
         },
     } = input;
 
-
     if (maxItems > 990) {
         log.warning(`The limit of items you set exceeds maximum allowed value. Max possible number of offers, that can be processed is 990.`)
     }
@@ -72,6 +71,7 @@ Apify.main(async () => {
     const countryUrl = countryDict[country.toLowerCase()] || `https://${country || 'www'}.indeed.com`;
     // COUNTER OF ITEMS TO SAVE 
     let itemsCounter = 0;
+    let currentPageNumber = 1;
 
     const requestQueue = await Apify.openRequestQueue();
     // IF THERE ARE START URLS => ADDING THEM TO THE QUEUE
@@ -82,11 +82,11 @@ Apify.main(async () => {
             if (!req.userData) req.userData = {};
             if (!req.userData.label) req.userData.label = 'START';
             req.userData.itemsCounter = itemsCounter;
+            req.userData.currentPageNumber = currentPageNumber;
             if (req.url.includes("viewjob")) req.userData.label = 'DETAIL'
             await requestQueue.addRequest(req);
             log.info(`This url will be scraped: ${req.url}`);
         }
-
     }
     // IF NO START URL => CREATING FIRST "LIST"  PAGE ON OUR OWN
     else {
@@ -96,13 +96,12 @@ Apify.main(async () => {
             url: startUrl,
             userData: {
                 label: 'START',
-                itemsCounter: itemsCounter,
+                itemsCounter,
+                currentPageNumber
             }
         });
     }
-
     const sdkProxyConfiguration = await Apify.createProxyConfiguration(proxyConfiguration);
-
     // You must use proxy on the platform
     if (Apify.getEnv().isAtHome && !sdkProxyConfiguration) {
         throw 'You must use Apify Proxy or custom proxies to run this scraper on the platform!';
@@ -135,6 +134,8 @@ Apify.main(async () => {
                 case 'START':
                 case 'LIST':
                     let itemsCounter = request.userData.itemsCounter;
+                    let currentPageNumber = request.userData.currentPageNumber;
+
                     log.info(`Number of processed offers: ${itemsCounter}`);
 
                     const details = $('.tapItem').get().map((el) => {
@@ -151,17 +152,19 @@ Apify.main(async () => {
                         itemsCounter += 1;
                     }
 
-                    const nextPage = $('a[aria-label="Next"]').attr('href');
-                    const nextPageUrl = {
-                        url: makeUrlFull(nextPage, urlParsed),
-                        userData: {
-                            label: 'LIST',
-                            itemsCounter: itemsCounter,
-                        }
-                    };
-
-                    if (!(maxItems && itemsCounter > maxItems) && itemsCounter < 990) await requestQueue.addRequest(nextPageUrl);
-
+                    if (!(maxItems && itemsCounter > maxItems) && itemsCounter < 990) {
+                        currentPageNumber++;
+                        const nextPage = $(`a[aria-label="${currentPageNumber}"]`).attr('href');
+                        const nextPageUrl = {
+                            url: makeUrlFull(nextPage, urlParsed),
+                            userData: {
+                                label: 'LIST',
+                                itemsCounter: itemsCounter,
+                                currentPageNumber
+                            }
+                        };
+                        await requestQueue.addRequest(nextPageUrl);
+                    } 
                     break;
                 case 'DETAIL':
                     let result = {
@@ -182,9 +185,7 @@ Apify.main(async () => {
                             log.info('Error in the extendedOutputFunction run', e);
                         }
                     }
-
                     await Apify.pushData(result);
-
                     break;
                 default:
                     throw new Error(`Unknown label: ${request.userData.label}`);
@@ -192,6 +193,5 @@ Apify.main(async () => {
         }
     });
     await crawler.run();
-
     log.info('Done.');
 });
