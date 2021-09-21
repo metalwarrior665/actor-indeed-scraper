@@ -174,8 +174,15 @@ Apify.main(async () => {
                         reviews: $(".jobsearch-JobInfoHeader-subtitle > div > div").eq(1).text().replace(/\D/g, ''),
                         url: request.url,
                         id: getIdFromUrl($('meta[id="indeed-share-url"]').attr('content')),
+                        // This selector is messy, seems a div without class works well
+                        postedAt: $('.jobsearch-JobMetadataFooter>div').not('[class]').text().trim(),
+                        scrapedAt: new Date().toISOString(),
                         description: $('div[id="jobDescriptionText"]').text(),
                     };
+
+                    if (result.postedAt.includes('If you require alternative methods of application or screening')) {
+                        await Apify.setValue('HTML', $('html').html(), { contentType: 'text/html' });
+                    }
 
                     if (extendOutputFunction) {
                         try {

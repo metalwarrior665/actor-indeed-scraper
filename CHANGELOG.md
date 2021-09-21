@@ -1,3 +1,6 @@
+### 2021-09-21
+- Added `postedAt` and `scrapedAt` fields
+
 ### 2021-15-07 - New SDK version (1.1.2).
 
 #### Bugs
