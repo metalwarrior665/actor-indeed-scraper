@@ -139,9 +139,11 @@ Apify.main(async () => {
                     log.info(`Number of processed offers: ${itemsCounter}`);
 
                     const details = $('.tapItem').get().map((el) => {
+                        /* This attribute is unique to each listing & serves the purpose of ID */
+                        const itemId = $(el).attr('data-jk');
                         return {
                             url: makeUrlFull(el.attribs.href, urlParsed),
-                            uniqueKey : $(el).attr('data-jk'),
+                            uniqueKey : itemId,
                             userData: {
                                 label: 'DETAIL'
                             }
