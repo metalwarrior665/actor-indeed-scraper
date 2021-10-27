@@ -141,6 +141,7 @@ Apify.main(async () => {
                     const details = $('.tapItem').get().map((el) => {
                         return {
                             url: makeUrlFull(el.attribs.href, urlParsed),
+                            uniqueKey : $(el).attr('data-jk'),
                             userData: {
                                 label: 'DETAIL'
                             }
