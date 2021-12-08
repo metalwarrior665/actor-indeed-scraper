@@ -139,11 +139,10 @@ Apify.main(async () => {
                     log.info(`Number of processed offers: ${itemsCounter}`);
 
                     const details = $('.tapItem').get().map((el) => {
-                        /* This attribute is unique to each listing & serves the purpose of ID */
-                        const itemId = $(el).attr('data-jk');
+                        // to have only unique results in dataset => you can use itemId as unequeKey in requestLike obj
+                        // const itemId = $(el).attr('data-jk'); 
                         return {
                             url: makeUrlFull(el.attribs.href, urlParsed),
-                            uniqueKey : `${Math.random()}${itemId}`, // to have only unique results in dataset => remove Math.Random()
                             userData: {
                                 label: 'DETAIL'
                             }
