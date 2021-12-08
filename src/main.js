@@ -143,7 +143,7 @@ Apify.main(async () => {
                         const itemId = $(el).attr('data-jk');
                         return {
                             url: makeUrlFull(el.attribs.href, urlParsed),
-                            uniqueKey : itemId,
+                            uniqueKey : `${Math.random()}${itemId}`, // to have only unique results in dataset => remove Math.Random()
                             userData: {
                                 label: 'DETAIL'
                             }
@@ -155,7 +155,10 @@ Apify.main(async () => {
                         itemsCounter += 1;
                     }
 
-                    if (!(maxItems && itemsCounter > maxItems) && itemsCounter < 990) {
+                    const maxItemsOnSite = +$('#searchCountPages').text().trim().split('of')[1].trim().split(' ')[0];
+                    const hasNextPage = $('a[aria-label="Next"]') ? true : false;
+
+                    if (!(maxItems && itemsCounter > maxItems) && itemsCounter < 990 && itemsCounter < maxItemsOnSite && hasNextPage) {
                         currentPageNumber++;
                         const nextPage = $(`a[aria-label="${currentPageNumber}"]`).attr('href');
                         const nextPageUrl = {

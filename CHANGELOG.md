@@ -1,3 +1,7 @@
+### 2021-12-08
+- SDK update to 2.1.0;
+- removed deduplication of results.
+
 ### 2021-09-21
 - Added `postedAt` and `scrapedAt` fields
 
