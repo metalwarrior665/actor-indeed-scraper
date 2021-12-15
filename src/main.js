@@ -84,6 +84,7 @@ Apify.main(async () => {
             req.userData.itemsCounter = itemsCounter;
             req.userData.currentPageNumber = currentPageNumber;
             if (req.url.includes("viewjob")) req.userData.label = 'DETAIL'
+            if (!req.url.includes('&sort=date')) req.url = `${req.url}&sort=date` // with sort by date there is less duplicates in LISTING
             await requestQueue.addRequest(req);
             log.info(`This url will be scraped: ${req.url}`);
         }
@@ -91,7 +92,7 @@ Apify.main(async () => {
     // IF NO START URL => CREATING FIRST "LIST"  PAGE ON OUR OWN
     else {
         log.info(`Running site crawl country ${country}, position ${position}, location ${location}`);
-        const startUrl = `${countryUrl}/jobs?${position ? `q=${encodeURIComponent(position)}&` : ''}${location ? `l=${encodeURIComponent(location)}` : ''}`;
+        const startUrl = `${countryUrl}/jobs?${position ? `q=${encodeURIComponent(position)}&sort=date` : ''}${location ? `l=${encodeURIComponent(location)}` : ''}`;
         await requestQueue.addRequest({
             url: startUrl,
             userData: {
@@ -141,20 +142,25 @@ Apify.main(async () => {
                     const details = $('.tapItem').get().map((el) => {
                         // to have only unique results in dataset => you can use itemId as unequeKey in requestLike obj
                         // const itemId = $(el).attr('data-jk'); 
+                        const itemUrl = makeUrlFull(el.attribs.href, urlParsed);
                         return {
-                            url: makeUrlFull(el.attribs.href, urlParsed),
-                            userData: {
-                                label: 'DETAIL'
-                            }
-                        };
+                          url: itemUrl,
+                          uniqueKey: `${itemUrl}-${currentPageNumber}`,
+                          userData: {
+                              label: 'DETAIL'
+                          }
+                      };
                     });
 
                     for (const req of details) {
                         if (!(maxItems && itemsCounter >= maxItems) && itemsCounter < 990) await requestQueue.addRequest(req);
                         itemsCounter += 1;
                     }
-
-                    const maxItemsOnSite = +$('#searchCountPages').text().trim().split('of')[1].trim().split(' ')[0];
+                    // getting total number of items, that the website shows. 
+                    // We need it for additional check. Without it, on the last "list" page it tries to enqueue next (non-existing) list page. 
+                    const maxItemsOnSite = +$('#searchCountPages').text().trim()
+                        .split('of')[1].trim()
+                        .split(' ')[0];
                     const hasNextPage = $('a[aria-label="Next"]') ? true : false;
 
                     if (!(maxItems && itemsCounter > maxItems) && itemsCounter < 990 && itemsCounter < maxItemsOnSite && hasNextPage) {
