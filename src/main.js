@@ -1,9 +1,7 @@
 const Apify = require('apify');
 const urlParse = require('url-parse');
 
-const {
-    log
-} = Apify.utils;
+const { log } = Apify.utils;
 
 function makeUrlFull(href, urlParsed) {
     if (href.substr(0, 1) === '/') return urlParsed.origin + href;
@@ -141,11 +139,12 @@ Apify.main(async () => {
 
                     const details = $('.tapItem').get().map((el) => {
                         // to have only unique results in dataset => you can use itemId as unequeKey in requestLike obj
-                        // const itemId = $(el).attr('data-jk'); 
+                        const itemId = $(el).attr('data-jk'); 
                         const itemUrl = makeUrlFull(el.attribs.href, urlParsed);
                         return {
                           url: itemUrl,
-                          uniqueKey: `${itemUrl}-${currentPageNumber}`,
+                        //   uniqueKey: `${itemUrl}-${currentPageNumber}`,
+                        uniqueKey: itemId,
                           userData: {
                               label: 'DETAIL'
                           }
@@ -166,15 +165,20 @@ Apify.main(async () => {
                     if (!(maxItems && itemsCounter > maxItems) && itemsCounter < 990 && itemsCounter < maxItemsOnSite && hasNextPage) {
                         currentPageNumber++;
                         const nextPage = $(`a[aria-label="${currentPageNumber}"]`).attr('href');
-                        const nextPageUrl = {
-                            url: makeUrlFull(nextPage, urlParsed),
-                            userData: {
-                                label: 'LIST',
-                                itemsCounter: itemsCounter,
-                                currentPageNumber
-                            }
-                        };
-                        await requestQueue.addRequest(nextPageUrl);
+
+                        // they have  inconsistent order of items on LIST pages, and there are a lot of duplicates. To get all unique items, each LIST page we enqueue 10 times  
+                        for (let i = 0; i < 10; i++) {
+                            const nextPageUrl = {
+                                url: makeUrlFull(nextPage, urlParsed),
+                                uniqueKey: `${i}--${makeUrlFull(nextPage, urlParsed)}`,
+                                userData: {
+                                    label: 'LIST',
+                                    itemsCounter: itemsCounter,
+                                    currentPageNumber
+                                }
+                            };
+                            await requestQueue.addRequest(nextPageUrl);
+                        }
                     } 
                     break;
                 case 'DETAIL':
