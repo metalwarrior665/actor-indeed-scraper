@@ -539,7 +539,7 @@
         "maxConcurrency": {
             "title": "Max concurrency",
             "type": "integer",
-            "minimum": 5,
+            "minimum": 1,
             "description": "Be nice to the website, don't go over 10",
             "prefill": 5
         },

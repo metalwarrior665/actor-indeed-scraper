@@ -1,9 +1,7 @@
 const Apify = require('apify');
 const urlParse = require('url-parse');
 
-const {
-    log
-} = Apify.utils;
+const {log} = Apify.utils;
 
 function makeUrlFull(href, urlParsed) {
     if (href.substr(0, 1) === '/') return urlParsed.origin + href;
@@ -84,6 +82,7 @@ Apify.main(async () => {
             req.userData.itemsCounter = itemsCounter;
             req.userData.currentPageNumber = currentPageNumber;
             if (req.url.includes("viewjob")) req.userData.label = 'DETAIL'
+            if (!req.url.includes('&sort=date')) req.url = `${req.url}&sort=date` // with sort by date there is less duplicates in LISTING
             await requestQueue.addRequest(req);
             log.info(`This url will be scraped: ${req.url}`);
         }
@@ -91,7 +90,7 @@ Apify.main(async () => {
     // IF NO START URL => CREATING FIRST "LIST"  PAGE ON OUR OWN
     else {
         log.info(`Running site crawl country ${country}, position ${position}, location ${location}`);
-        const startUrl = `${countryUrl}/jobs?${position ? `q=${encodeURIComponent(position)}&` : ''}${location ? `l=${encodeURIComponent(location)}` : ''}`;
+        const startUrl = `${countryUrl}/jobs?${position ? `q=${encodeURIComponent(position)}&sort=date` : ''}${location ? `l=${encodeURIComponent(location)}` : ''}`;
         await requestQueue.addRequest({
             url: startUrl,
             userData: {
@@ -120,7 +119,7 @@ Apify.main(async () => {
         maxConcurrency,
         maxRequestRetries: 15,
         proxyConfiguration: sdkProxyConfiguration,
-        handlePageFunction: async ({ $, request, session, response }) => {
+        handlePageFunction: async ({$, request, session, response}) => {
             log.info(`Label(Page type): ${request.userData.label} || URL: ${request.url}`);
             const urlParsed = urlParse(request.url);
 
@@ -139,11 +138,13 @@ Apify.main(async () => {
                     log.info(`Number of processed offers: ${itemsCounter}`);
 
                     const details = $('.tapItem').get().map((el) => {
-                        /* This attribute is unique to each listing & serves the purpose of ID */
+                        // to have only unique results in dataset => you can use itemId as unequeKey in requestLike obj
                         const itemId = $(el).attr('data-jk');
+                        const itemUrl = makeUrlFull(el.attribs.href, urlParsed);
                         return {
-                            url: makeUrlFull(el.attribs.href, urlParsed),
-                            uniqueKey : itemId,
+                            url: itemUrl,
+                            //   uniqueKey: `${itemUrl}-${currentPageNumber}`,
+                            uniqueKey: itemId,
                             userData: {
                                 label: 'DETAIL'
                             }
@@ -154,20 +155,31 @@ Apify.main(async () => {
                         if (!(maxItems && itemsCounter >= maxItems) && itemsCounter < 990) await requestQueue.addRequest(req);
                         itemsCounter += 1;
                     }
+                    // getting total number of items, that the website shows. 
+                    // We need it for additional check. Without it, on the last "list" page it tries to enqueue next (non-existing) list page. 
+                    const maxItemsOnSite = Number($('#searchCountPages').text().trim()
+                        .split('of')[1].trim()
+                        .split(' ')[0]);
+                    const hasNextPage = $('a[aria-label="Next"]') ? true : false;
 
-                    if (!(maxItems && itemsCounter > maxItems) && itemsCounter < 990) {
+                    if (!(maxItems && itemsCounter > maxItems) && itemsCounter < 990 && itemsCounter < maxItemsOnSite && hasNextPage) {
                         currentPageNumber++;
                         const nextPage = $(`a[aria-label="${currentPageNumber}"]`).attr('href');
-                        const nextPageUrl = {
-                            url: makeUrlFull(nextPage, urlParsed),
-                            userData: {
-                                label: 'LIST',
-                                itemsCounter: itemsCounter,
-                                currentPageNumber
-                            }
-                        };
-                        await requestQueue.addRequest(nextPageUrl);
-                    } 
+
+                        // Indeed has  inconsistent order of items on LIST pages, that is why there are a lot of duplicates. To get all unique items, we enqueue each LIST page 5 times
+                        for (let i = 0; i < 5; i++) {
+                            const nextPageUrl = {
+                                url: makeUrlFull(nextPage, urlParsed),
+                                uniqueKey: `${i}--${makeUrlFull(nextPage, urlParsed)}`,
+                                userData: {
+                                    label: 'LIST',
+                                    itemsCounter: itemsCounter,
+                                    currentPageNumber
+                                }
+                            };
+                            await requestQueue.addRequest(nextPageUrl);
+                        }
+                    }
                     break;
                 case 'DETAIL':
                     let result = {
@@ -184,7 +196,7 @@ Apify.main(async () => {
                     };
 
                     if (result.postedAt.includes('If you require alternative methods of application or screening')) {
-                        await Apify.setValue('HTML', $('html').html(), { contentType: 'text/html' });
+                        await Apify.setValue('HTML', $('html').html(), {contentType: 'text/html'});
                     }
 
                     if (extendOutputFunction) {
