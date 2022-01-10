@@ -1,7 +1,7 @@
 const Apify = require('apify');
 const urlParse = require('url-parse');
 
-const { log } = Apify.utils;
+const {log} = Apify.utils;
 
 function makeUrlFull(href, urlParsed) {
     if (href.substr(0, 1) === '/') return urlParsed.origin + href;
@@ -119,7 +119,7 @@ Apify.main(async () => {
         maxConcurrency,
         maxRequestRetries: 15,
         proxyConfiguration: sdkProxyConfiguration,
-        handlePageFunction: async ({ $, request, session, response }) => {
+        handlePageFunction: async ({$, request, session, response}) => {
             log.info(`Label(Page type): ${request.userData.label} || URL: ${request.url}`);
             const urlParsed = urlParse(request.url);
 
@@ -139,16 +139,16 @@ Apify.main(async () => {
 
                     const details = $('.tapItem').get().map((el) => {
                         // to have only unique results in dataset => you can use itemId as unequeKey in requestLike obj
-                        const itemId = $(el).attr('data-jk'); 
+                        const itemId = $(el).attr('data-jk');
                         const itemUrl = makeUrlFull(el.attribs.href, urlParsed);
                         return {
-                          url: itemUrl,
-                        //   uniqueKey: `${itemUrl}-${currentPageNumber}`,
-                        uniqueKey: itemId,
-                          userData: {
-                              label: 'DETAIL'
-                          }
-                      };
+                            url: itemUrl,
+                            //   uniqueKey: `${itemUrl}-${currentPageNumber}`,
+                            uniqueKey: itemId,
+                            userData: {
+                                label: 'DETAIL'
+                            }
+                        };
                     });
 
                     for (const req of details) {
@@ -157,17 +157,17 @@ Apify.main(async () => {
                     }
                     // getting total number of items, that the website shows. 
                     // We need it for additional check. Without it, on the last "list" page it tries to enqueue next (non-existing) list page. 
-                    const maxItemsOnSite = +$('#searchCountPages').text().trim()
+                    const maxItemsOnSite = Number($('#searchCountPages').text().trim()
                         .split('of')[1].trim()
-                        .split(' ')[0];
+                        .split(' ')[0]);
                     const hasNextPage = $('a[aria-label="Next"]') ? true : false;
 
                     if (!(maxItems && itemsCounter > maxItems) && itemsCounter < 990 && itemsCounter < maxItemsOnSite && hasNextPage) {
                         currentPageNumber++;
                         const nextPage = $(`a[aria-label="${currentPageNumber}"]`).attr('href');
 
-                        // they have  inconsistent order of items on LIST pages, and there are a lot of duplicates. To get all unique items, each LIST page we enqueue 10 times  
-                        for (let i = 0; i < 10; i++) {
+                        // Indeed has  inconsistent order of items on LIST pages, that is why there are a lot of duplicates. To get all unique items, we enqueue each LIST page 5 times
+                        for (let i = 0; i < 5; i++) {
                             const nextPageUrl = {
                                 url: makeUrlFull(nextPage, urlParsed),
                                 uniqueKey: `${i}--${makeUrlFull(nextPage, urlParsed)}`,
@@ -179,7 +179,7 @@ Apify.main(async () => {
                             };
                             await requestQueue.addRequest(nextPageUrl);
                         }
-                    } 
+                    }
                     break;
                 case 'DETAIL':
                     let result = {
@@ -196,7 +196,7 @@ Apify.main(async () => {
                     };
 
                     if (result.postedAt.includes('If you require alternative methods of application or screening')) {
-                        await Apify.setValue('HTML', $('html').html(), { contentType: 'text/html' });
+                        await Apify.setValue('HTML', $('html').html(), {contentType: 'text/html'});
                     }
 
                     if (extendOutputFunction) {
