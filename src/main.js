@@ -140,7 +140,8 @@ Apify.main(async () => {
                     const details = $('.tapItem').get().map((el) => {
                         // to have only unique results in dataset => you can use itemId as unequeKey in requestLike obj
                         const itemId = $(el).attr('data-jk');
-                        const itemUrl = makeUrlFull(el.attribs.href, urlParsed);
+                        const itemUrl = 'https://www.indeed.com' + $(el).attr('href');
+
                         return {
                             url: itemUrl,
                             //   uniqueKey: `${itemUrl}-${currentPageNumber}`,
@@ -157,13 +158,15 @@ Apify.main(async () => {
                     }
                     // getting total number of items, that the website shows. 
                     // We need it for additional check. Without it, on the last "list" page it tries to enqueue next (non-existing) list page. 
-                    const maxItemsOnSite = Number($('#searchCountPages').text().trim()
-                        .split('of')[1].trim()
-                        .split(' ')[0]);
-                    const hasNextPage = $('a[aria-label="Next"]') ? true : false;
+                    const maxItemsOnSite = Number($('#searchCountPages').html()
+                        .trim()
+                        .split(' ')[3]
+                        .replace('&nbsp;', ''))
+
+                    currentPageNumber++;
+                    const hasNextPage = $(`a[aria-label="${currentPageNumber}"]`) ? true : false;
 
                     if (!(maxItems && itemsCounter > maxItems) && itemsCounter < 990 && itemsCounter < maxItemsOnSite && hasNextPage) {
-                        currentPageNumber++;
                         const nextPage = $(`a[aria-label="${currentPageNumber}"]`).attr('href');
 
                         // Indeed has  inconsistent order of items on LIST pages, that is why there are a lot of duplicates. To get all unique items, we enqueue each LIST page 5 times

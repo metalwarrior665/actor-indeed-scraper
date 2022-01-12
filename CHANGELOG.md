@@ -1,3 +1,6 @@
+### 2021-01-12
+- SDK update to 2.2.1.
+
 ### 2021-12-08
 - SDK update to 2.1.0;
 - removed deduplication of results.
