@@ -66,7 +66,9 @@ Apify.main(async () => {
         nl: 'https://www.indeed.nl',
         za: 'https://www.indeed.co.za',
     };
-    const countryUrl = countryDict[country.toLowerCase()] || `https://${country || 'www'}.indeed.com`;
+
+    let countryUrl;
+    countryUrl = countryDict[country.toLowerCase()] || `https://${country || 'www'}.indeed.com`;
     // COUNTER OF ITEMS TO SAVE 
     let itemsCounter = 0;
     let currentPageNumber = 1;
@@ -85,6 +87,7 @@ Apify.main(async () => {
             if (!req.url.includes('&sort=date')) req.url = `${req.url}&sort=date` // with sort by date there is less duplicates in LISTING
             await requestQueue.addRequest(req);
             log.info(`This url will be scraped: ${req.url}`);
+            countryUrl = req.url.split('.com')[0] + '.com';
         }
     }
     // IF NO START URL => CREATING FIRST "LIST"  PAGE ON OUR OWN
@@ -140,22 +143,23 @@ Apify.main(async () => {
                     const details = $('.tapItem').get().map((el) => {
                         // to have only unique results in dataset => you can use itemId as unequeKey in requestLike obj
                         const itemId = $(el).attr('data-jk');
-                        const itemUrl = 'https://www.indeed.com' + $(el).attr('href');
-
-                        return {
-                            url: itemUrl,
-                            //   uniqueKey: `${itemUrl}-${currentPageNumber}`,
-                            uniqueKey: itemId,
-                            userData: {
-                                label: 'DETAIL'
-                            }
-                        };
+                        const itemUrl = countryUrl + $(el).attr('href');
+                            return {
+                                url: itemUrl,
+                                //   uniqueKey: `${itemUrl}-${currentPageNumber}`,
+                                uniqueKey: itemId,
+                                userData: {
+                                    label: 'DETAIL'
+                                }
+                            };                   
                     });
 
-                    for (const req of details) {
-                        if (!(maxItems && itemsCounter >= maxItems) && itemsCounter < 990) await requestQueue.addRequest(req);
-                        itemsCounter += 1;
-                    }
+                        for (const req of details) {
+                        // rarely LIST page doesn't laod properly (items without href) => check for undefined
+                            if (!(maxItems && itemsCounter >= maxItems) && itemsCounter < 990 && !req.url.includes('undefined')) await requestQueue.addRequest(req);
+                            itemsCounter += 1;
+                        }
+    
                     // getting total number of items, that the website shows. 
                     // We need it for additional check. Without it, on the last "list" page it tries to enqueue next (non-existing) list page. 
                     const maxItemsOnSite = Number($('#searchCountPages').html()
