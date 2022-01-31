@@ -191,12 +191,12 @@ Apify.main(async () => {
                 case 'DETAIL':
                     let result = {
                         positionName: $('.jobsearch-JobInfoHeader-title').text().trim(),
-                        company: $(".jobsearch-JobInfoHeader-subtitle > div > div").eq(0).text(),
+                        company: $('meta[property="og:description"]').attr('content'),
                         location: $(".jobsearch-JobInfoHeader-subtitle > div").eq(1).text(),
-                        reviews: $(".jobsearch-JobInfoHeader-subtitle > div > div").eq(1).text().replace(/\D/g, ''),
+                        rating: $('meta[itemprop="ratingValue"]').attr('content') ? Number($('meta[itemprop="ratingValue"]').attr('content')) : null,
+                        reviewsCount: $('meta[itemprop="ratingCount"]').attr('content') ? Number($('meta[itemprop="ratingCount"]').attr('content')) : null,
                         url: request.url,
                         id: getIdFromUrl($('meta[id="indeed-share-url"]').attr('content')),
-                        // This selector is messy, seems a div without class works well
                         postedAt: $('.jobsearch-JobMetadataFooter>div').not('[class]').text().trim(),
                         scrapedAt: new Date().toISOString(),
                         description: $('div[id="jobDescriptionText"]').text(),
