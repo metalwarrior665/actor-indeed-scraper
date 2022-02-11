@@ -165,8 +165,7 @@ Apify.main(async () => {
                     const maxItemsOnSite = Number($('#searchCountPages').html()
                         .trim()
                         .split(' ')[3]
-                        .replace('&nbsp;', '')
-                        .replace(',', ''))
+                        .replace(/[^0-9]/g, ''))
 
                     currentPageNumber++;
                     const hasNextPage = $(`a[aria-label="${currentPageNumber}"]`) ? true : false;
