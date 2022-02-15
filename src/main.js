@@ -93,7 +93,7 @@ Apify.main(async () => {
     // IF NO START URL => CREATING FIRST "LIST"  PAGE ON OUR OWN
     else {
         log.info(`Running site crawl country ${country}, position ${position}, location ${location}`);
-        const startUrl = `${countryUrl}/jobs?${position ? `q=${encodeURIComponent(position)}&sort=date` : ''}${location ? `l=${encodeURIComponent(location)}` : ''}`;
+        const startUrl = `${countryUrl}/jobs?${position ? `q=${encodeURIComponent(position)}&sort=date` : ''}${location ? `&l=${encodeURIComponent(location)}` : ''}`;
         await requestQueue.addRequest({
             url: startUrl,
             userData: {
