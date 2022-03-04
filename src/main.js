@@ -191,6 +191,7 @@ Apify.main(async () => {
                 case 'DETAIL':
                     let result = {
                         positionName: $('.jobsearch-JobInfoHeader-title').text().trim(),
+                        salary: $('#salaryInfoAndJobType .attribute_snippet').text() !== '' ? $('#salaryInfoAndJobType .attribute_snippet').text() : null,
                         company: $('meta[property="og:description"]').attr('content'),
                         location: $(".jobsearch-JobInfoHeader-subtitle > div").eq(1).text(),
                         rating: $('meta[itemprop="ratingValue"]').attr('content') ? Number($('meta[itemprop="ratingValue"]').attr('content')) : null,

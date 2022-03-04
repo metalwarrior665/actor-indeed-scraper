@@ -1,9 +1,13 @@
-### 2021-01-31
+### 2022-01-31
+#### Improvements
+- SDK update to 2.2.2.
+
+### 2022-01-31
 #### Improvements
 -  Added new "rating" field to the output;
 -  "reviews" field changed to "reviewsCount".
 
-### 2021-01-12
+### 2022-01-12
 - SDK update to 2.2.1.
 
 ### 2021-12-08
