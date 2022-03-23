@@ -31,15 +31,19 @@ Apify.main(async () => {
         position,
         location,
         startUrls,
-        maxItems,
         extendOutputFunction,
         proxyConfiguration = {
             useApifyProxy: true
         },
     } = input;
 
+    let { maxItems } = input;
+
     if (maxItems > 990) {
         log.warning(`The limit of items you set exceeds maximum allowed value. Max possible number of offers, that can be processed is 990.`)
+    } else if (maxItems === undefined) {
+        log.info(`no maxItems value. Set it to 990 (max)`);
+        maxItems = 990;
     }
     // EXTENDED FUNCTION FROM INPUT
     let extendOutputFunctionValid;
@@ -81,13 +85,12 @@ Apify.main(async () => {
             if (!req.url) throw 'StartURL in bad format, needs to be object with url field';
             if (!req.userData) req.userData = {};
             if (!req.userData.label) req.userData.label = 'START';
-            req.userData.itemsCounter = itemsCounter;
             req.userData.currentPageNumber = currentPageNumber;
             if (req.url.includes("viewjob")) req.userData.label = 'DETAIL'
             if (!req.url.includes('&sort=date')) req.url = `${req.url}&sort=date` // with sort by date there is less duplicates in LISTING
             await requestQueue.addRequest(req);
             log.info(`This url will be scraped: ${req.url}`);
-            countryUrl = req.url.split('.com')[0] + '.com';
+            countryUrl = `https://${req.url.split('https://')[1].split('/')[0]}`
         }
     }
     // IF NO START URL => CREATING FIRST "LIST"  PAGE ON OUR OWN
@@ -98,7 +101,6 @@ Apify.main(async () => {
             url: startUrl,
             userData: {
                 label: 'START',
-                itemsCounter,
                 currentPageNumber
             }
         });
@@ -120,7 +122,7 @@ Apify.main(async () => {
             },
         },
         maxConcurrency,
-        maxRequestRetries: 15,
+        maxRequestRetries: 5,
         proxyConfiguration: sdkProxyConfiguration,
         handlePageFunction: async ({$, request, session, response}) => {
             log.info(`Label(Page type): ${request.userData.label} || URL: ${request.url}`);
@@ -135,10 +137,14 @@ Apify.main(async () => {
             switch (request.userData.label) {
                 case 'START':
                 case 'LIST':
-                    let itemsCounter = request.userData.itemsCounter;
-                    let currentPageNumber = request.userData.currentPageNumber;
+                    const noResultsFlag = $('.no_results').length > 0 ? true : false;
 
-                    log.info(`Number of processed offers: ${itemsCounter}`);
+                    if (noResultsFlag) {
+                        log.info('URL doesn\'t have result');
+                        return;
+                    };
+
+                    let currentPageNumber = request.userData.currentPageNumber;
 
                     const details = $('.tapItem').get().map((el) => {
                         // to have only unique results in dataset => you can use itemId as unequeKey in requestLike obj
@@ -156,8 +162,7 @@ Apify.main(async () => {
 
                         for (const req of details) {
                         // rarely LIST page doesn't laod properly (items without href) => check for undefined
-                            if (!(maxItems && itemsCounter >= maxItems) && itemsCounter < 990 && !req.url.includes('undefined')) await requestQueue.addRequest(req);
-                            itemsCounter += 1;
+                            if (!(maxItems && itemsCounter >= maxItems) && itemsCounter < 990 && !req.url.includes('undefined')) await requestQueue.addRequest(req, { forefront: true });
                         }
     
                     // getting total number of items, that the website shows. 
@@ -168,7 +173,7 @@ Apify.main(async () => {
                         .replace(/[^0-9]/g, ''))
 
                     currentPageNumber++;
-                    const hasNextPage = $(`a[aria-label="${currentPageNumber}"]`) ? true : false;
+                    const hasNextPage = $(`a[aria-label="${currentPageNumber}"]`).length > 0 ? true : false;
 
                     if (!(maxItems && itemsCounter > maxItems) && itemsCounter < 990 && itemsCounter < maxItemsOnSite && hasNextPage) {
                         const nextPage = $(`a[aria-label="${currentPageNumber}"]`).attr('href');
@@ -180,7 +185,6 @@ Apify.main(async () => {
                                 uniqueKey: `${i}--${makeUrlFull(nextPage, urlParsed)}`,
                                 userData: {
                                     label: 'LIST',
-                                    itemsCounter: itemsCounter,
                                     currentPageNumber
                                 }
                             };
@@ -189,6 +193,7 @@ Apify.main(async () => {
                     }
                     break;
                 case 'DETAIL':
+                if (!(maxItems && itemsCounter > maxItems)) {
                     let result = {
                         positionName: $('.jobsearch-JobInfoHeader-title').text().trim(),
                         salary: $('#salaryInfoAndJobType .attribute_snippet').text() !== '' ? $('#salaryInfoAndJobType .attribute_snippet').text() : null,
@@ -215,7 +220,10 @@ Apify.main(async () => {
                             log.info('Error in the extendedOutputFunction run', e);
                         }
                     }
-                    await Apify.pushData(result);
+                        await Apify.pushData(result);
+                        itemsCounter += 1;
+                    }
+                    
                     break;
                 default:
                     throw new Error(`Unknown label: ${request.userData.label}`);
