@@ -146,7 +146,8 @@ Apify.main(async () => {
 
                     let currentPageNumber = request.userData.currentPageNumber;
 
-                    const urlDomainBase = request.url.split('https://')[1].split('/')[0];
+                    const urlDomainBase = (new URL(request.url)).hostname;
+    
                     const details = $('.tapItem').get().map((el) => {
                         // to have only unique results in dataset => you can use itemId as unequeKey in requestLike obj
                         const itemId = $(el).attr('data-jk');
