@@ -73,7 +73,7 @@ Apify.main(async () => {
 
     let countryUrl;
     countryUrl = countryDict[country.toLowerCase()] || `https://${country || 'www'}.indeed.com`;
-    // COUNTER OF ITEMS TO SAVE 
+    // COUNTER OF ITEMS TO SAVE
     let itemsCounter = 0;
     let currentPageNumber = 1;
 
@@ -137,7 +137,7 @@ Apify.main(async () => {
             switch (request.userData.label) {
                 case 'START':
                 case 'LIST':
-                    const noResultsFlag = $('.no_results').length > 0 ? true : false;
+                    const noResultsFlag = $('.no_results').length > 0;
 
                     if (noResultsFlag) {
                         log.info('URL doesn\'t have result');
@@ -147,35 +147,38 @@ Apify.main(async () => {
                     let currentPageNumber = request.userData.currentPageNumber;
 
                     const urlDomainBase = (new URL(request.url)).hostname;
-    
-                    const details = $('.tapItem').get().map((el) => {
-                        // to have only unique results in dataset => you can use itemId as unequeKey in requestLike obj
-                        const itemId = $(el).attr('data-jk');
-                        const itemUrl = `https://${urlDomainBase}${$(el).attr('href')}`;
-                            return {
-                                url: itemUrl,
-                                //   uniqueKey: `${itemUrl}-${currentPageNumber}`,
-                                uniqueKey: itemId,
-                                userData: {
-                                    label: 'DETAIL'
-                                }
-                            };                   
+
+                    const details = [];
+
+                    $('.tapItem a[data-jk]').each((index, element) => {
+                        const itemId = $(element).attr('data-jk');
+                        const itemUrl = `https://${urlDomainBase}${$(element).attr('href')}`;
+                        details.push({
+                            url: itemUrl,
+                            //   uniqueKey: `${itemUrl}-${currentPageNumber}`,
+                            uniqueKey: itemId,
+                            userData: {
+                                label: 'DETAIL'
+                            }
+                        });
                     });
 
                         for (const req of details) {
                         // rarely LIST page doesn't laod properly (items without href) => check for undefined
-                            if (!(maxItems && itemsCounter >= maxItems) && itemsCounter < 990 && !req.url.includes('undefined')) await requestQueue.addRequest(req, { forefront: true });
+                            if (!(maxItems && itemsCounter >= maxItems) && itemsCounter < 990 && !req.url.includes('undefined')) {
+                                await requestQueue.addRequest(req, { forefront: true });
+                            }
                         }
-    
-                    // getting total number of items, that the website shows. 
-                    // We need it for additional check. Without it, on the last "list" page it tries to enqueue next (non-existing) list page. 
+
+                    // getting total number of items, that the website shows.
+                    // We need it for additional check. Without it, on the last "list" page it tries to enqueue next (non-existing) list page.
                     const maxItemsOnSite = Number($('#searchCountPages').html()
                         .trim()
                         .split(' ')[3]
                         .replace(/[^0-9]/g, ''))
 
                     currentPageNumber++;
-                    const hasNextPage = $(`a[aria-label="${currentPageNumber}"]`).length > 0 ? true : false;
+                    const hasNextPage = $(`a[aria-label="${currentPageNumber}"]`).length > 0;
 
                     if (!(maxItems && itemsCounter > maxItems) && itemsCounter < 990 && itemsCounter < maxItemsOnSite && hasNextPage) {
                         const nextPage = $(`a[aria-label="${currentPageNumber}"]`).attr('href');
@@ -225,7 +228,7 @@ Apify.main(async () => {
                         await Apify.pushData(result);
                         itemsCounter += 1;
                     }
-                    
+
                     break;
                 default:
                     throw new Error(`Unknown label: ${request.userData.label}`);
