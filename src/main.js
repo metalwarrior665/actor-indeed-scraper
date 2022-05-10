@@ -163,7 +163,6 @@ Apify.main(async () => {
                         });
                     });
 
-                    console.log(`details: ${details.length}`);
                         for (const req of details) {
                         // rarely LIST page doesn't laod properly (items without href) => check for undefined
                             if (!(maxItems && itemsCounter >= maxItems) && itemsCounter < 990 && !req.url.includes('undefined')) {
