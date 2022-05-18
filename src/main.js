@@ -211,6 +211,7 @@ Apify.main(async () => {
                         postedAt: $('.jobsearch-JobMetadataFooter>div').not('[class]').text().trim(),
                         scrapedAt: new Date().toISOString(),
                         description: $('div[id="jobDescriptionText"]').text(),
+                        externalApplyLink: $('#applyButtonLinkContainer a')[0] ? $($('#applyButtonLinkContainer a')[0]).attr('href') : null,
                     };
 
                     if (result.postedAt.includes('If you require alternative methods of application or screening')) {

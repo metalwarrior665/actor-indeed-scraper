@@ -1,5 +1,10 @@
 ### 2022-01-31
 #### Improvements
+-  Added new "externalApplyLink" field to the output;
+- SDK update to 2.3.0.
+
+### 2022-01-31
+#### Improvements
 - SDK update to 2.2.2.
 
 ### 2022-01-31
