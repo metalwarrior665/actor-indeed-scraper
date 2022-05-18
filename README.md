@@ -25,16 +25,18 @@ Output is stored in a dataset. Each item is an information about a movies/TV sho
 
 ```
 {
-  "positionName": "Sr. Android Developer (Independent Candidates only not with employers)",
-  "company": "Innovyt",
-  "location": "San Francisco, CA",
-  "rating": "3.4",
-  "reviewsCount": "233",
-  "url": "https://www.indeed.com/company/Innovyt/jobs/Senior-Android-Developer-ee6f2dbfb12dcca7?fccid=ffabf8962cbfb083&vjs=3",
-  "id": "ee6f2dbfb12dcca7",
-  "postedAt": "6 days ago",
-  "scrapedAt": "2022-01-12T13:54:16.024Z",
-  "description": "Role: Sr. Android Developer Locations: NY / NJ / Freemont, CA/San Leandro, CA/San Francisco, CA / Charlotte, NC / Minneapolis, Minnesota / Chandler, Arizona Overall 7+ years of Software development experience5+ years of overall Android development experienceFin Tech / Banking experience nice to have but not mandatedCandidate should be able to demonstrate example of apps in Google PlayStore3+ years of experience on native dev preferably in KotlinExperience with Reactive Programming (RxJava), Dependency Injection (Dagger), Retrofit and KotlinTechnical degree or additional experienceExcellent communication skillsJob Types: Full-time, ContractPay: $75.00 - $80.00 per hourSchedule:8 hour shiftEducation:Bachelor's (Preferred)Experience:iOS: 1 year (Preferred)SDKs: 1 year (Required)Android: 1 year (Required)Work Location: One location"
+  "positionName": "Senior Solidity Engineer",
+  "salary": null,
+  "company": "DRW",
+  "location": "Chicago, IL",
+  "rating": null,
+  "reviewsCount": null,
+  "url": "https://www.indeed.com/rc/clk?jk=3dfe789bd602e530&fccid=d9e7c4d795860e0c&vjs=3",
+  "id": "3dfe789bd602e530",
+  "postedAt": "Today",
+  "scrapedAt": "2022-05-18T15:47:32.948Z",
+  "description": "Cumberland - a DRW Company is the cryptoasset arm of DRW, established in 2014 after pursuing an early interest in cryptoassets and their underlying technologies. Today, Cumberland is a global leader in cryptoassets, uniquely positioned between the traditional financial markets and the cryptoasset ecosystem. From our offices in Chicago, London and Singapore, we provide 24-hour access to a wide array of cryptoassets while helping the crypto ecosystem evolve in a responsible, sustainable way.\n\nWe are seeking a Senior Solidity Engineer to join our founding team of a new venture. This is a unique opportunity to join an elite team to contribute to a new blockchain technology unit building a new DeFi protocol. The Solidity engineer we seek has a passion for DeFi projects and cares deeply about writing secure, maintainable, high quality code.",
+  "externalApplyLink": "https://www.indeed.com/applystart?jk=3dfe789bd602e530&from=vj&pos=bottom&mvj=0&spon=0&sjdu=YmZE5d5THV8u75cuc0H6Y26AwfY51UOGmh3Z9h4OvXgOzIPfDLQDPc7Te_Vyq65bwsdLqiuaGy5Gw05HfKNzLw&vjfrom=serp&astse=13a1bdfbf2aa442f&assa=2776"
 }
 ```
 ### NOTE: Bug with LIST (PAGINATION) pages
