@@ -17,6 +17,7 @@ Apify.main(async () => {
         proxyConfiguration = {
             useApifyProxy: true
         },
+        saveOnlyUniqueItems = true,
     } = input;
 
     let { maxItems } = input;
@@ -58,7 +59,7 @@ Apify.main(async () => {
             },
         },
         maxConcurrency,
-        maxRequestRetries: 5,
+        maxRequestRetries: 10, // a lot of 403 blocks at the beginning of the run
         proxyConfiguration: sdkProxyConfiguration,
         handlePageFunction: async ({ $, request, session, response }) => {
             log.info(`Label(Page type): ${request.userData.label} || URL: ${request.url}`);
@@ -89,8 +90,7 @@ Apify.main(async () => {
                         const itemUrl = `https://${urlDomainBase}${$(element).attr('href')}`;
                         details.push({
                             url: itemUrl,
-                            //   uniqueKey: `${itemUrl}-${currentPageNumber}`,
-                            uniqueKey: itemId,
+                            uniqueKey: saveOnlyUniqueItems ? itemId : `${itemUrl}-${currentPageNumber}`,
                             userData: {
                                 label: 'DETAIL'
                             }

@@ -536,6 +536,13 @@
             "description": "Limit of detail/product pages to be scraped",
             "prefill": 100
         },
+        "saveOnlyUniqueItems": {
+            "title": "Save Only Unique Items",
+            "type": "boolean",
+            "description": "if true, only unique items will be scraped",
+            "default": true,
+            "editor": "checkbox"
+            },
         "maxConcurrency": {
             "title": "Max concurrency",
             "type": "integer",

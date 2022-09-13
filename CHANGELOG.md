@@ -1,3 +1,7 @@
+### 2022-09-13
+#### Improvements
+-  Added "saveOnlyUniqueItems" option to the input;
+
 ### 2022-01-31
 #### Improvements
 -  Added new "externalApplyLink" field to the output;
