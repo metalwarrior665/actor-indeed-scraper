@@ -1,4 +1,4 @@
-const COUNTRY_DICT = {
+export const COUNTRY_DICT = {
     us: 'https://www.indeed.com',
     uk: 'https://www.indeed.co.uk',
     gb: 'https://www.indeed.co.uk',
@@ -11,6 +11,8 @@ const COUNTRY_DICT = {
     za: 'https://www.indeed.co.za',
 };
 
-module.exports = {
-    COUNTRY_DICT,
+export const LABELS = {
+    START: 'START',
+    LIST: 'LIST',
+    DETAIL: 'DETAIL',
 };
